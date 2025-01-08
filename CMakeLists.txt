@@ -47,6 +47,20 @@ set(BUILD_WSI_XLIB_SUPPORT OFF CACHE BOOL "" FORCE)
 set(BUILD_WSI_WAYLAND_SUPPORT OFF CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(vulkan_loader)
 
+# Set output directories
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
+foreach(OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
+    string(TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${CMAKE_BINARY_DIR}/bin)
+    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${CMAKE_BINARY_DIR}/bin)
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${CMAKE_BINARY_DIR}/bin)
+endforeach()
+
+set(SHADER_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin/shaders)
+
 # Add executable
 add_executable(${PROJECT_NAME} main.cpp)
 
@@ -63,3 +77,19 @@ target_include_directories(${PROJECT_NAME}
         ${vulkan_headers_SOURCE_DIR}/include
         ${glm_SOURCE_DIR}
 )
+
+# Compile shaders
+file(GLOB SHADERS "shaders/*.vert" "shaders/*.frag")
+foreach(SHADER ${SHADERS})
+    get_filename_component(FILE_NAME_WE ${SHADER} NAME_WE)
+    add_custom_command(
+        OUTPUT ${SHADER_OUTPUT_DIRECTORY}/${FILE_NAME_WE}.spv
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${SHADER_OUTPUT_DIRECTORY}
+        COMMAND glslangValidator -V ${SHADER} -o ${SHADER_OUTPUT_DIRECTORY}/${FILE_NAME_WE}.spv
+        DEPENDS ${SHADER}
+    )
+    list(APPEND SPV_SHADERS ${SHADER_OUTPUT_DIRECTORY}/${FILE_NAME_WE}.spv)
+endforeach()
+
+add_custom_target(ShadersTarget DEPENDS ${SPV_SHADERS})
+add_dependencies(${PROJECT_NAME} ShadersTarget)
