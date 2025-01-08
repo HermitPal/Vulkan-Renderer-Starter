@@ -29,8 +29,15 @@ FetchContent_Declare(
     GIT_TAG v1.3.275
 )
 
+# Fetch GLM
+FetchContent_Declare(
+    glm
+    GIT_REPOSITORY https://github.com/g-truc/glm.git
+    GIT_TAG 0.9.9.8
+)
+
 # Make all content available
-FetchContent_MakeAvailable(glfw vulkan_headers)
+FetchContent_MakeAvailable(glfw vulkan_headers glm)
 
 # Configure Vulkan Loader build
 set(BUILD_TESTS OFF CACHE BOOL "" FORCE)
@@ -54,4 +61,5 @@ target_link_libraries(${PROJECT_NAME}
 target_include_directories(${PROJECT_NAME}
     PRIVATE
         ${vulkan_headers_SOURCE_DIR}/include
+        ${glm_SOURCE_DIR}
 )
