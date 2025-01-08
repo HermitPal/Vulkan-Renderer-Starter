@@ -25,8 +25,8 @@ You will also need a C++17 compatible compiler and CMake version 3.20 or higher.
 
 1. Clone the repository:
     ```sh
-    git clone <repo>
-    cd <repo>
+    git clone https://github.com/HermitPal/Vulkan-Renderer-Starter.git
+    cd Vulkan-Renderer-Starter
     ```
 
 2. Create and navigate to the build directory:
